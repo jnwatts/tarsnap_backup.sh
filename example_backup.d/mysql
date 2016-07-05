@@ -1,0 +1,13 @@
+DIRS=( /var/tmp/mysql )
+PRE=( mysql_export )
+
+mysql_export() {
+    TMP=/var/tmp/mysql
+    rm -Rf $TMP
+    mkdir -p $TMP
+    DBS=( my_database other_database )
+    mysql -B -N --user=root -e "SELECT DISTINCT CONCAT( 'SHOW GRANTS FOR \'', user, '\'@\'', host, '\';') AS query FROM mysql.user" | mysql -B --user=root | sed 's/\(GRANT .*\)/\1;/;s/^\(Grants for .*\)/## \1 ##/;/##/{x;p;x;}' | gzip > $TMP/grants.sql.gz
+    for DB in ${DBS[@]}; do
+        mysqldump --user=root ${DB} | gzip > ${TMP}/${DB}.sql.gz
+    done
+}

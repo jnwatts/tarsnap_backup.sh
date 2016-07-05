@@ -1,0 +1,1 @@
+DIRS=( /srv/www/mysite /srv/www/myothersite )
